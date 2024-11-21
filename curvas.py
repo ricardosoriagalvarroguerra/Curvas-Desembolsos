@@ -13,8 +13,10 @@ def logistic_model(k, b0, b1, b2):
 @st.cache
 def load_data(file_path):
     data = pd.read_excel(file_path)
-    data['fecha_desembolso'] = pd.to_datetime(data['fecha_desembolso'])
-    data['fecha_aprobacion'] = pd.to_datetime(data['fecha_aprobacion'])
+    # Convertir columnas de fecha al tipo datetime
+    data['fecha_desembolso'] = pd.to_datetime(data['fecha_desembolso'], errors='coerce')
+    data['fecha_aprobacion'] = pd.to_datetime(data['fecha_aprobacion'], errors='coerce')
+    # Añadir columnas auxiliares
     data['year'] = data['fecha_desembolso'].dt.year
     data['months_since_approval'] = (data['fecha_desembolso'] - data['fecha_aprobacion']).dt.days // 30
     return data
