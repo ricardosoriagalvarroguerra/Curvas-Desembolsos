@@ -49,7 +49,8 @@ if filter_type != "Sin Filtro":
     )
 
 # Filtro de fechas con control deslizante
-min_date, max_date = data['fecha_aprobacion'].min(), data['fecha_aprobacion'].max()
+min_date = data['fecha_aprobacion'].min().to_pydatetime()
+max_date = data['fecha_aprobacion'].max().to_pydatetime()
 selected_date_range = st.sidebar.slider(
     "Selecciona el rango de fechas de aprobación:",
     min_value=min_date,
