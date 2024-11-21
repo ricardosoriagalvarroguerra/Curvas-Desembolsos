@@ -96,6 +96,12 @@ datamodelo_sumary = (
 datamodelo_sumary['cumulative_disbursement_total'] = datamodelo_sumary.groupby('IDOperacion')['cumulative_disbursement_year'].cumsum()
 datamodelo_sumary['d'] = datamodelo_sumary['cumulative_disbursement_total'] / datamodelo_sumary['approval_amount']
 
+# Aplicar la lógica de filtrado adicional
+# Eliminar filas donde 'd' > 1.0 o 'k' < 0
+datamodelo_sumary = datamodelo_sumary[
+    (datamodelo_sumary['d'] <= 1.0) & (datamodelo_sumary['k'] >= 0)
+]
+
 # Ajustar modelo logístico
 if not datamodelo_sumary.empty:
     initial_params = [-0.034145, 0.037973, 5.682123]
