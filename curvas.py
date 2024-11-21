@@ -8,9 +8,9 @@ from datetime import datetime
 # Configurar pandas para que no use comas como separadores de miles
 pd.options.display.float_format = '{:.0f}'.format
 
-# Logistic model function
+# Logistic model function (modificado según la metodología del BID)
 def logistic_model(k, b0, b1, b2):
-    return b0 + (1 / (1 + b2 * np.exp(-b1 * k)))
+    return 1 / ((1 + np.exp(b0 - b1 * k)) ** b2)
 
 # Load data
 @st.cache
@@ -104,7 +104,8 @@ datamodelo_sumary = datamodelo_sumary[
 
 # Ajustar modelo logístico
 if not datamodelo_sumary.empty:
-    initial_params = [-0.12987 , 0.06425, 5.21825]
+    # Parámetros iniciales ajustados según la metodología
+    initial_params = [2.0, 0.1, 1.5]
     params, covariance = curve_fit(
         logistic_model, 
         datamodelo_sumary['k'], 
