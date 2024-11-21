@@ -5,6 +5,9 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+# Configurar pandas para que no use comas como separadores de miles
+pd.options.display.float_format = '{:.0f}'.format
+
 # Logistic model function
 def logistic_model(k, b0, b1, b2):
     return b0 + (1 / (1 + b2 * np.exp(-b1 * k)))
@@ -17,7 +20,7 @@ def load_data(file_path):
     data['fecha_desembolso'] = pd.to_datetime(data['fecha_desembolso'], errors='coerce')
     data['fecha_aprobacion'] = pd.to_datetime(data['fecha_aprobacion'], errors='coerce')
     # Añadir columnas auxiliares
-    data['year'] = data['fecha_desembolso'].dt.year
+    data['year'] = data['fecha_desembolso'].dt.year.astype(int)  # Asegurar que 'year' es entero
     data['months_since_approval'] = (data['fecha_desembolso'] - data['fecha_aprobacion']).dt.days // 30
     return data
 
@@ -31,7 +34,7 @@ data = load_data(file_path)
 # Sidebar for filters
 st.sidebar.header("Filtros Opcionales")
 
-# Menu desplegable para escoger tipo de filtro
+# Menú desplegable para escoger tipo de filtro
 filter_type = st.sidebar.selectbox(
     "Selecciona el tipo de filtro:",
     ["Sin Filtro", "sector_name", "pais", "tipo_prestamo"]
@@ -67,6 +70,9 @@ if filter_type != "Sin Filtro" and selected_values:
 filtered_data = filtered_data[
     filtered_data['fecha_aprobacion'].between(selected_date_range[0], selected_date_range[1])
 ]
+
+# Convertir 'year' a string para evitar comas en la visualización
+filtered_data['year'] = filtered_data['year'].astype(str)
 
 # Mostrar datos filtrados
 st.subheader("Datos Filtrados")
