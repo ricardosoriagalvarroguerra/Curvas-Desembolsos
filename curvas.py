@@ -11,8 +11,8 @@ def logistic_model(k, b0, b1, b2):
 
 # Load data
 @st.cache
-def load_data_from_github(url):
-    data = pd.read_excel(url)
+def load_data(file_path):
+    data = pd.read_excel(file_path)
     data['fecha_desembolso'] = pd.to_datetime(data['fecha_desembolso'])
     data['fecha_aprobacion'] = pd.to_datetime(data['fecha_aprobacion'])
     data['year'] = data['fecha_desembolso'].dt.year
@@ -22,9 +22,9 @@ def load_data_from_github(url):
 # Streamlit app
 st.title("Estimación de la Curva de Desembolsos - FONPLATA")
 
-# Load data from GitHub
-repo_url = "https://github.com/ricardosoriagalvarroguerra/Curvas-Desembolsos/blob/main/fonplata_bdd.xlsx"  # Reemplaza con la URL directa del archivo
-data = load_data_from_github(repo_url)
+# Define file path
+file_path = "fonplata_bdd.xlsx"  # Especifica el nombre del archivo local
+data = load_data(file_path)
 
 # Menu desplegable para escoger tipo de filtro
 filter_type = st.selectbox(
