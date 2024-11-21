@@ -104,7 +104,7 @@ datamodelo_sumary = datamodelo_sumary[
 
 # Ajustar modelo logístico
 if not datamodelo_sumary.empty:
-    initial_params = [-0.034145, 0.037973, 5.682123]
+    initial_params = [-0.12987 , 0.06425, 5.21825]
     params, covariance = curve_fit(
         logistic_model, 
         datamodelo_sumary['k'], 
