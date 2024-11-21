@@ -26,33 +26,43 @@ st.title("Estimación de la Curva de Desembolsos - FONPLATA")
 file_path = "fonplata_bdd.xlsx"  # Especifica el nombre del archivo local
 data = load_data(file_path)
 
+# Sidebar for filters
+st.sidebar.header("Filtros Opcionales")
+
 # Menu desplegable para escoger tipo de filtro
-filter_type = st.selectbox(
+filter_type = st.sidebar.selectbox(
     "Selecciona el tipo de filtro:",
-    ["sector_name", "pais", "tipo_prestamo"]
+    ["Sin Filtro", "sector_name", "pais", "tipo_prestamo"]
 )
 
-# Crear checkboxes dinámicos según el filtro seleccionado
-unique_values = data[filter_type].unique()
-selected_values = st.multiselect(
-    f"Selecciona los valores de {filter_type} (todos seleccionados por defecto):",
-    unique_values,
-    default=unique_values
-)
+selected_values = None
 
-# Control deslizante para el rango de fechas
+# Opciones dinámicas si no se selecciona "Sin Filtro"
+if filter_type != "Sin Filtro":
+    unique_values = data[filter_type].unique()
+    selected_values = st.sidebar.multiselect(
+        f"Selecciona los valores de {filter_type} (todos seleccionados por defecto):",
+        unique_values,
+        default=unique_values
+    )
+
+# Filtro de fechas con control deslizante
 min_date, max_date = data['fecha_aprobacion'].min(), data['fecha_aprobacion'].max()
-selected_date_range = st.slider(
+selected_date_range = st.sidebar.slider(
     "Selecciona el rango de fechas de aprobación:",
     min_value=min_date,
     max_value=max_date,
     value=(min_date, max_date)
 )
 
-# Aplicar filtros a los datos
-filtered_data = data[
-    (data[filter_type].isin(selected_values)) &
-    (data['fecha_aprobacion'].between(selected_date_range[0], selected_date_range[1]))
+# Aplicar filtros si corresponden
+filtered_data = data.copy()
+
+if filter_type != "Sin Filtro" and selected_values:
+    filtered_data = filtered_data[filtered_data[filter_type].isin(selected_values)]
+
+filtered_data = filtered_data[
+    filtered_data['fecha_aprobacion'].between(selected_date_range[0], selected_date_range[1])
 ]
 
 # Mostrar datos filtrados
@@ -60,24 +70,25 @@ st.subheader("Datos Filtrados")
 st.write(filtered_data)
 
 # Agrupar y preparar datos para el modelo
-if not filtered_data.empty:
-    datamodelo_sumary = (
-        filtered_data.groupby(['IDOperacion', 'year'], as_index=False)
-        .agg({
-            'monto_desembolsado': 'sum',
-            'monto_aprobacion': 'first',
-            'months_since_approval': 'max'
-        })
-        .rename(columns={
-            'monto_desembolsado': 'cumulative_disbursement_year',
-            'monto_aprobacion': 'approval_amount',
-            'months_since_approval': 'k'
-        })
-    )
-    datamodelo_sumary['cumulative_disbursement_total'] = datamodelo_sumary.groupby('IDOperacion')['cumulative_disbursement_year'].cumsum()
-    datamodelo_sumary['d'] = datamodelo_sumary['cumulative_disbursement_total'] / datamodelo_sumary['approval_amount']
+datamodelo_sumary = (
+    filtered_data.groupby(['IDOperacion', 'year'], as_index=False)
+    .agg({
+        'monto_desembolsado': 'sum',
+        'monto_aprobacion': 'first',
+        'months_since_approval': 'max'
+    })
+    .rename(columns={
+        'monto_desembolsado': 'cumulative_disbursement_year',
+        'monto_aprobacion': 'approval_amount',
+        'months_since_approval': 'k'
+    })
+)
 
-    # Ajustar modelo logístico
+datamodelo_sumary['cumulative_disbursement_total'] = datamodelo_sumary.groupby('IDOperacion')['cumulative_disbursement_year'].cumsum()
+datamodelo_sumary['d'] = datamodelo_sumary['cumulative_disbursement_total'] / datamodelo_sumary['approval_amount']
+
+# Ajustar modelo logístico
+if not datamodelo_sumary.empty:
     initial_params = [-0.034145, 0.037973, 5.682123]
     params, covariance = curve_fit(
         logistic_model, 
