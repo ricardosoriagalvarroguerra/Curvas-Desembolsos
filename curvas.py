@@ -23,7 +23,7 @@ def load_data_from_github(url):
 st.title("Estimación de la Curva de Desembolsos - FONPLATA")
 
 # Load data from GitHub
-repo_url = "URL_DE_TU_ARCHIVO_EN_GITHUB.xlsx"  # Reemplaza con la URL directa del archivo
+repo_url = "https://github.com/ricardosoriagalvarroguerra/Curvas-Desembolsos/blob/main/fonplata_bdd.xlsx"  # Reemplaza con la URL directa del archivo
 data = load_data_from_github(repo_url)
 
 # Menu desplegable para escoger tipo de filtro
