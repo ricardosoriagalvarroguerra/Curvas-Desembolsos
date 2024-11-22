@@ -1,6 +1,6 @@
 streamlit
-groq
-easyocr
-pdf2image
-Pillow
 pandas
+numpy
+plotly
+scipy
+openpyxl
