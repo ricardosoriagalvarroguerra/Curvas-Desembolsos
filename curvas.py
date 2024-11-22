@@ -231,12 +231,14 @@ fig.update_layout(
     height=700,  # Altura del gráfico
     width=1000,  # Ancho ajustado
     legend=dict(
-        orientation="v",  # Apiladas verticalmente
-        yanchor="top",
-        y=1.2,  # Encima del gráfico
-        xanchor="center",
-        x=0.5,  # Centrada horizontalmente
-        font=dict(size=12)  # Tamaño de fuente ajustado
+        orientation="v",  # Apilada verticalmente
+        yanchor="bottom",  # Anclada a la parte inferior
+        y=1.02,  # Por encima del gráfico
+        xanchor="left",  # Alineada a la izquierda
+        x=0,  # Posición inicial izquierda
+        bgcolor="rgba(255,255,255,0.7)",  # Fondo blanco semitransparente
+        bordercolor="black",  # Borde negro
+        borderwidth=1  # Grosor del borde
     )
 )
 
