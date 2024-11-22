@@ -132,7 +132,7 @@ if not datamodelo_sumary.empty:
         y=datamodelo_sumary['d'],
         mode='markers',
         name='Datos Observados (d)',
-        marker=dict(color='red', size=8, opacity=0.8),
+        marker=dict(color='white', size=8, opacity=0.8),
         text=datamodelo_sumary.apply(
             lambda row: f"IDOperacion: {row['IDOperacion']}<br>K (meses): {row['k']}<br>Proporción Desembolsada: {row['d']:.2f}",
             axis=1
