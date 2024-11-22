@@ -170,7 +170,7 @@ if group_column:
 
         # Ajustar modelo logístico solo si hay al menos 3 datos válidos
         if len(datamodelo_sumary) >= 3:
-            initial_params = [0, 0, 0]
+            initial_params = [2.0, 0.1, 1.5]
             params, _ = curve_fit(
                 lambda k, b0, b1, b2: logistic_model(k, b0, b1, b2),  # Mapear `x` a `k`
                 datamodelo_sumary['k'],
@@ -235,10 +235,8 @@ fig.update_layout(
         yanchor="top",  # Anclada a la parte superior
         y=1,  # Posicionada arriba
         xanchor="right",  # Alineada a la derecha
-        x=1.2,  # Separada del gráfico
-        bgcolor="rgba(255,255,255,0.7)",  # Fondo blanco semitransparente
-        bordercolor="black",  # Borde negro
-        borderwidth=1  # Grosor del borde
+        x=1.1,  # Justo fuera del gráfico
+        bgcolor="rgba(0,0,0,0)",  # Fondo completamente transparente
     )
 )
 
