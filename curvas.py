@@ -99,16 +99,6 @@ if not general_summary.empty:
 # Crear gráfico
 fig = go.Figure()
 
-# Añadir la curva histórica general
-fig.add_trace(go.Scatter(
-    x=general_summary_sorted['k'],
-    y=general_summary_sorted['hd_k'],
-    mode='lines',
-    name='General',
-    line=dict(color='black', width=3),
-    hovertemplate="K (meses): %{x}<br>Proporción General: %{y:.2f}"
-))
-
 # Generar curvas específicas si se selecciona una categoría
 group_column = None
 if categories == "Sectores":
@@ -178,6 +168,16 @@ if group_column:
                 line=dict(width=2, color=line_color, dash='dot'),
                 hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
             ))
+
+# Añadir la curva histórica general después de las específicas para que quede arriba
+fig.add_trace(go.Scatter(
+    x=general_summary_sorted['k'],
+    y=general_summary_sorted['hd_k'],
+    mode='lines',
+    name='General',
+    line=dict(color='white', width=4),  # Más gruesa y de color blanco
+    hovertemplate="K (meses): %{x}<br>Proporción General: %{y:.2f}"
+))
 
 # Personalizar diseño del gráfico
 fig.update_layout(
