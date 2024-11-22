@@ -33,6 +33,19 @@ country_colors = {
     "paraguay": "#B71C1C"  # Rojo oscuro
 }
 
+# Diccionario de colores para sectores y tipos de préstamo
+default_colors = [
+    "#FF5733",  # Naranja
+    "#33FF57",  # Verde claro
+    "#3357FF",  # Azul fuerte
+    "#FFC300",  # Amarillo oro
+    "#DAF7A6",  # Verde pastel
+    "#FF33F6",  # Rosa fuerte
+    "#C70039",  # Rojo fuerte
+    "#900C3F",  # Rojo vino
+    "#581845",  # Morado oscuro
+]
+
 # Diccionario de abreviaturas para sectores
 sector_abbreviations = {
     "Infraestructura y Medio Ambiente": "infra",
@@ -110,6 +123,7 @@ elif categories == "Países":
 
 if group_column:
     grouped_data = data.groupby(group_column)
+    color_index = 0  # Para asignar colores diferentes a cada curva
 
     for group_name, group_df in grouped_data:
         # Convertir nombres de sectores a minúsculas y abreviados si corresponde
@@ -156,15 +170,19 @@ if group_column:
             # Ordenar los datos por 'k' para graficar correctamente
             datamodelo_sumary_sorted = datamodelo_sumary.sort_values(by='k')
 
-            # Elegir color para países o usar el predeterminado
-            line_color = country_colors.get(group_name.lower(), "#808080")  # Default gris
+            # Elegir color para el grupo o usar uno del conjunto por defecto
+            if group_column == "pais":
+                line_color = country_colors.get(group_name.lower(), "#808080")  # Default gris
+            else:
+                line_color = default_colors[color_index % len(default_colors)]
+                color_index += 1
 
             # Añadir la curva estimada para este grupo
             fig.add_trace(go.Scatter(
                 x=datamodelo_sumary_sorted['k'],
                 y=datamodelo_sumary_sorted['hd_k'],
                 mode='lines',
-                name=group_name,
+                name=group_name.lower(),
                 line=dict(width=2, color=line_color, dash='dot'),
                 hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
             ))
@@ -174,7 +192,7 @@ fig.add_trace(go.Scatter(
     x=general_summary_sorted['k'],
     y=general_summary_sorted['hd_k'],
     mode='lines',
-    name='General',
+    name='general',
     line=dict(color='white', width=4),  # Más gruesa y de color blanco
     hovertemplate="K (meses): %{x}<br>Proporción General: %{y:.2f}"
 ))
