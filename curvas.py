@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from datetime import datetime
 
 # Configurar pandas para que no use comas como separadores de miles
@@ -120,26 +120,47 @@ if not datamodelo_sumary.empty:
     # Ordenar los datos por 'k' para graficar correctamente
     datamodelo_sumary_sorted = datamodelo_sumary.sort_values(by='k')
 
-    # Graficar la curva
+    # Graficar la curva interactiva con Plotly
     st.subheader("Curva de Desembolsos Estimada")
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(
-        datamodelo_sumary_sorted['k'], 
-        datamodelo_sumary_sorted['hd_k'], 
-        label='Curva Estimada (hd_k)', 
-        color='red'
+    fig = go.Figure()
+
+    # Añadir la curva estimada
+    fig.add_trace(go.Scatter(
+        x=datamodelo_sumary_sorted['k'],
+        y=datamodelo_sumary_sorted['hd_k'],
+        mode='lines',
+        name='Curva Estimada (hd_k)',
+        line=dict(color='red')
+    ))
+
+    # Añadir los datos observados
+    fig.add_trace(go.Scatter(
+        x=datamodelo_sumary['k'],
+        y=datamodelo_sumary['d'],
+        mode='markers',
+        name='Datos Observados (d)',
+        marker=dict(color='blue', size=8, opacity=0.7)
+    ))
+
+    # Personalizar diseño
+    fig.update_layout(
+        title='Curva Histórica de Desembolsos - FONPLATA',
+        xaxis=dict(
+            title='Meses desde la Aprobación (k)',
+            titlefont=dict(color='white'),
+            tickfont=dict(color='white')
+        ),
+        yaxis=dict(
+            title='Proporción de Desembolsos Acumulados (hd(k))',
+            titlefont=dict(color='white'),
+            tickfont=dict(color='white')
+        ),
+        plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
+        paper_bgcolor='rgba(0,0,0,0)',  # Fondo de todo el gráfico transparente
+        font=dict(color='white')  # Color del texto en blanco
     )
-    ax.scatter(
-        datamodelo_sumary['k'], 
-        datamodelo_sumary['d'], 
-        label='Datos Observados (d)', 
-        alpha=0.7
-    )
-    ax.set_title('Curva Histórica de Desembolsos - FONPLATA')
-    ax.set_xlabel('Meses desde la Aprobación (k)')
-    ax.set_ylabel('Proporción de Desembolsos Acumulados (hd(k))')
-    ax.legend()
-    ax.grid(True)
-    st.pyplot(fig)
+
+    # Mostrar el gráfico
+    st.plotly_chart(fig, use_container_width=True)
 else:
     st.warning("No hay datos que coincidan con los filtros seleccionados.")
