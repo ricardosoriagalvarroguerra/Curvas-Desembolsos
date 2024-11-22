@@ -199,7 +199,7 @@ if group_column:
                 mode='lines',
                 name=group_name.lower(),
                 line=dict(width=2, color=line_color, dash='dot'),
-                hovertemplate=f"{group_column}: {group_name}<br>Meses (K): %{x}<br>Proporción: %{y:.2f}"
+                hovertemplate=f"{group_column}: {group_name}<br>Meses (K): %{{x}}<br>Proporción: %{{y:.2f}}"
             ))
 
 # Añadir la curva histórica general después de las específicas para que quede arriba
@@ -209,7 +209,7 @@ fig.add_trace(go.Scatter(
     mode='lines',
     name='general',
     line=dict(color='white', width=4),  # Más gruesa y de color blanco
-    hovertemplate="Meses (K): %{x}<br>Proporción General: %{y:.2f}"
+    hovertemplate="Meses (K): %{{x}}<br>Proporción General: %{{y:.2f}}"
 ))
 
 # Personalizar diseño del gráfico
