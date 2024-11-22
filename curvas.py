@@ -9,8 +9,8 @@ from datetime import datetime
 pd.options.display.float_format = '{:.0f}'.format
 
 # Logistic model function (modificado según la metodología del BID)
-def logistic_model(k, b0, b1, b2):
-    return 1 / ((1 + np.exp(b0 - b1 * k)) ** b2)
+def logistic_model(x, b0, b1, b2):
+    return 1 / ((1 + np.exp(b0 - b1 * x)) ** b2)
 
 # Load data
 @st.cache_data
