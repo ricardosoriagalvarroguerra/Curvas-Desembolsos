@@ -123,7 +123,7 @@ if not datamodelo_sumary.empty:
         y=datamodelo_sumary_sorted['hd_k'],
         mode='lines',
         name='Curva Histórica Estimada (hd_k)',
-        line=dict(color='red', width=3, dash='solid')
+        line=dict(color='white', width=3, dash='solid')
     ))
 
     # Añadir los datos observados (color blanco)
@@ -132,7 +132,7 @@ if not datamodelo_sumary.empty:
         y=datamodelo_sumary['d'],
         mode='markers',
         name='Datos Observados (d)',
-        marker=dict(color='white', size=8, opacity=0.9),
+        marker=dict(color='red', size=8, opacity=0.9),
         text=datamodelo_sumary.apply(
             lambda row: f"IDOperacion: {row['IDOperacion']}<br>K (meses): {row['k']}<br>Proporción Desembolsada: {row['d']:.2f}",
             axis=1
