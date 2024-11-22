@@ -24,6 +24,24 @@ def load_data(file_path):
     data['months_since_approval'] = (data['fecha_desembolso'] - data['fecha_aprobacion']).dt.days // 30
     return data
 
+# Diccionario de colores para países
+country_colors = {
+    "bolivia": "green",
+    "argentina": "blue",
+    "uruguay": "lightblue",
+    "brasil": "yellow",
+    "paraguay": "darkred"
+}
+
+# Diccionario de abreviaturas para sectores
+sector_abbreviations = {
+    "Infraestructura y Medio Ambiente": "infra",
+    "Sector Social": "social",
+    "Gobernanza e Instituciones": "gob",
+    "Mercado y Competitividad": "merc",
+    "Integración Regional": "int"
+}
+
 # Streamlit app
 st.title("Estimación de la Curva de Desembolsos - FONPLATA")
 
@@ -104,6 +122,10 @@ if group_column:
     grouped_data = data.groupby(group_column)
 
     for group_name, group_df in grouped_data:
+        # Convertir nombres de sectores a minúsculas y abreviados si corresponde
+        if group_column == "sector_name":
+            group_name = sector_abbreviations.get(group_name, group_name).lower()
+
         # Preparar datos para el modelo
         datamodelo_sumary = (
             group_df.groupby(['IDOperacion', 'year'], as_index=False)
@@ -144,13 +166,16 @@ if group_column:
             # Ordenar los datos por 'k' para graficar correctamente
             datamodelo_sumary_sorted = datamodelo_sumary.sort_values(by='k')
 
+            # Elegir color para países o usar el predeterminado
+            line_color = country_colors.get(group_name.lower(), None) if group_column == "pais" else None
+
             # Añadir la curva estimada para este grupo
             fig.add_trace(go.Scatter(
                 x=datamodelo_sumary_sorted['k'],
                 y=datamodelo_sumary_sorted['hd_k'],
                 mode='lines',
                 name=f"{group_name} - Curva Estimada",
-                line=dict(width=2),
+                line=dict(width=2, color=line_color),
                 hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
             ))
 
@@ -171,7 +196,14 @@ fig.update_layout(
     paper_bgcolor='rgba(0,0,0,0)',  # Fondo de todo el gráfico transparente
     font=dict(color='white'),  # Color del texto en blanco
     height=700,  # Altura del gráfico más grande
-    width=1200  # Ancho del gráfico más grande
+    width=1200,  # Ancho del gráfico más grande
+    legend=dict(
+        orientation="h",  # Horizontal
+        yanchor="bottom",
+        y=1.1,  # Posicionar arriba del gráfico
+        xanchor="center",
+        x=0.5
+    )
 )
 
 # Mostrar el gráfico
