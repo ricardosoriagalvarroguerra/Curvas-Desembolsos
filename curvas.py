@@ -9,8 +9,8 @@ from datetime import datetime
 pd.options.display.float_format = '{:.0f}'.format
 
 # Logistic model function (modificado según la metodología del BID)
-def logistic_model(x, b0, b1, b2):
-    return 1 / ((1 + np.exp(b0 - b1 * x)) ** b2)
+def logistic_model(k, b0, b1, b2):
+    return 1 / ((1 + np.exp(b0 - b1 * k)) ** b2)
 
 # Load data
 @st.cache_data
@@ -103,7 +103,7 @@ general_summary = general_summary[
 general_params = [2.0, 0.1, 1.5]
 if not general_summary.empty:
     general_params, _ = curve_fit(
-        logistic_model,
+        lambda k, b0, b1, b2: logistic_model(k, b0, b1, b2),  # Mapear `x` a `k`
         general_summary['k'],
         general_summary['d'],
         p0=general_params,
@@ -172,7 +172,7 @@ if group_column:
         if len(datamodelo_sumary) >= 3:
             initial_params = [2.0, 0.1, 1.5]
             params, _ = curve_fit(
-                logistic_model,
+                lambda k, b0, b1, b2: logistic_model(k, b0, b1, b2),  # Mapear `x` a `k`
                 datamodelo_sumary['k'],
                 datamodelo_sumary['d'],
                 p0=initial_params,
