@@ -100,7 +100,7 @@ general_summary = general_summary[
 ]
 
 # Ajustar modelo logístico general
-general_params = [0, 0, 0]
+general_params = [2.0, 0.1, 1.5]
 if not general_summary.empty:
     general_params, _ = curve_fit(
         lambda k, b0, b1, b2: logistic_model(k, b0, b1, b2),  # Mapear `x` a `k`
@@ -126,6 +126,81 @@ if show_observations:
         hovertemplate="IDOperacion: %{text}<br>Meses (K): %{x}<br>Proporción: %{y:.2f}",
         text=general_summary['IDOperacion']  # IDOperacion en el tooltip
     ))
+
+# Generar curvas específicas si se selecciona una categoría
+group_column = None
+if categories == "Sectores":
+    group_column = "sector_name"
+elif categories == "Tipos de Préstamo":
+    group_column = "tipo_prestamo"
+elif categories == "Países":
+    group_column = "pais"
+
+if group_column:
+    grouped_data = data.groupby(group_column)
+    color_index = 0  # Para asignar colores diferentes a cada curva
+
+    for group_name, group_df in grouped_data:
+        # Convertir nombres de sectores a minúsculas y abreviados si corresponde
+        if group_column == "sector_name":
+            group_name = sector_abbreviations.get(group_name, group_name).lower()
+
+        # Preparar datos para el modelo
+        datamodelo_sumary = (
+            group_df.groupby(['IDOperacion', 'year'], as_index=False)
+            .agg({
+                'monto_desembolsado': 'sum',
+                'monto_aprobacion': 'first',
+                'months_since_approval': 'max'
+            })
+            .rename(columns={
+                'monto_desembolsado': 'cumulative_disbursement_year',
+                'monto_aprobacion': 'approval_amount',
+                'months_since_approval': 'k'
+            })
+        )
+
+        datamodelo_sumary['cumulative_disbursement_total'] = datamodelo_sumary.groupby('IDOperacion')['cumulative_disbursement_year'].cumsum()
+        datamodelo_sumary['d'] = datamodelo_sumary['cumulative_disbursement_total'] / datamodelo_sumary['approval_amount']
+
+        # Eliminar filas donde 'd' > 1.0 o 'k' < 0
+        datamodelo_sumary = datamodelo_sumary[
+            (datamodelo_sumary['d'] <= 1.0) & (datamodelo_sumary['k'] >= 0)
+        ]
+
+        # Ajustar modelo logístico solo si hay al menos 3 datos válidos
+        if len(datamodelo_sumary) >= 3:
+            initial_params = [2.0, 0.1, 1.5]
+            params, _ = curve_fit(
+                lambda k, b0, b1, b2: logistic_model(k, b0, b1, b2),  # Mapear `x` a `k`
+                datamodelo_sumary['k'],
+                datamodelo_sumary['d'],
+                p0=initial_params,
+                maxfev=2000
+            )
+
+            b0_hat, b1_hat, b2_hat = params
+            datamodelo_sumary['hd_k'] = logistic_model(datamodelo_sumary['k'], b0_hat, b1_hat, b2_hat)
+
+            # Ordenar los datos por 'k' para graficar correctamente
+            datamodelo_sumary_sorted = datamodelo_sumary.sort_values(by='k')
+
+            # Elegir color para el grupo o usar uno del conjunto por defecto
+            if group_column == "pais":
+                line_color = country_colors.get(group_name.lower(), "#808080")  # Default gris
+            else:
+                line_color = default_colors[color_index % len(default_colors)]
+                color_index += 1
+
+            # Añadir la curva estimada para este grupo
+            fig.add_trace(go.Scatter(
+                x=datamodelo_sumary_sorted['k'],
+                y=datamodelo_sumary_sorted['hd_k'],
+                mode='lines',
+                name=group_name.lower(),
+                line=dict(width=2, color=line_color, dash='dot'),
+                hovertemplate=f"{group_column}: {group_name}<br>Meses (K): %{{x}}<br>Proporción: %{{y:.2f}}"
+            ))
 
 # Añadir la curva histórica general después de las específicas para que quede arriba
 fig.add_trace(go.Scatter(
