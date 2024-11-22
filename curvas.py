@@ -98,7 +98,7 @@ datamodelo_sumary = datamodelo_sumary[
 # Ajustar modelo logístico
 if not datamodelo_sumary.empty:
     # Parámetros iniciales ajustados según la metodología
-    initial_params = [0, 1, 0]
+    initial_params = [0, 0, 0]
     params, covariance = curve_fit(
         logistic_model, 
         datamodelo_sumary['k'], 
@@ -123,7 +123,7 @@ if not datamodelo_sumary.empty:
         y=datamodelo_sumary_sorted['hd_k'],
         mode='lines',
         name='Curva Histórica Estimada (hd_k)',
-        line=dict(color='red', width=3, dash='solid')
+        line=dict(color='white', width=3, dash='solid')
     ))
 
     # Añadir los datos observados
