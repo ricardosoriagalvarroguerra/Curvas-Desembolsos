@@ -24,13 +24,13 @@ def load_data(file_path):
     data['months_since_approval'] = (data['fecha_desembolso'] - data['fecha_aprobacion']).dt.days // 30
     return data
 
-# Diccionario de colores para países
+# Diccionario de colores minimalistas para países
 country_colors = {
-    "bolivia": "green",
-    "argentina": "blue",
-    "uruguay": "lightblue",
-    "brasil": "yellow",
-    "paraguay": "darkred"
+    "bolivia": "#4CAF50",  # Verde
+    "argentina": "#2196F3",  # Azul
+    "uruguay": "#00BCD4",  # Celeste
+    "brasil": "#FFC107",  # Amarillo
+    "paraguay": "#B71C1C"  # Rojo oscuro
 }
 
 # Diccionario de abreviaturas para sectores
@@ -104,8 +104,8 @@ fig.add_trace(go.Scatter(
     x=general_summary_sorted['k'],
     y=general_summary_sorted['hd_k'],
     mode='lines',
-    name='Curva General (hd_k)',
-    line=dict(color='red', width=4),
+    name='General',
+    line=dict(color='black', width=3),
     hovertemplate="K (meses): %{x}<br>Proporción General: %{y:.2f}"
 ))
 
@@ -167,15 +167,15 @@ if group_column:
             datamodelo_sumary_sorted = datamodelo_sumary.sort_values(by='k')
 
             # Elegir color para países o usar el predeterminado
-            line_color = country_colors.get(group_name.lower(), None) if group_column == "pais" else None
+            line_color = country_colors.get(group_name.lower(), "#808080")  # Default gris
 
             # Añadir la curva estimada para este grupo
             fig.add_trace(go.Scatter(
                 x=datamodelo_sumary_sorted['k'],
                 y=datamodelo_sumary_sorted['hd_k'],
                 mode='lines',
-                name=f"{group_name} - Curva Estimada",
-                line=dict(width=2, color=line_color),
+                name=group_name,
+                line=dict(width=2, color=line_color, dash='dot'),
                 hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
             ))
 
@@ -198,11 +198,11 @@ fig.update_layout(
     height=700,  # Altura del gráfico más grande
     width=1200,  # Ancho del gráfico más grande
     legend=dict(
-        orientation="h",  # Horizontal
-        yanchor="bottom",
-        y=1.1,  # Posicionar arriba del gráfico
-        xanchor="center",
-        x=0.5
+        orientation="v",  # Apiladas verticalmente
+        yanchor="top",
+        y=1,
+        xanchor="right",
+        x=1.2  # A la derecha del gráfico
     )
 )
 
