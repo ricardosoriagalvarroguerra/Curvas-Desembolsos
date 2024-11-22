@@ -71,13 +71,6 @@ filtered_data = filtered_data[
     filtered_data['fecha_aprobacion'].between(selected_date_range[0], selected_date_range[1])
 ]
 
-# Convertir 'year' a string para evitar comas en la visualización
-filtered_data['year'] = filtered_data['year'].astype(str)
-
-# Mostrar datos filtrados
-st.subheader("Datos Filtrados")
-st.write(filtered_data)
-
 # Agrupar y preparar datos para el modelo
 datamodelo_sumary = (
     filtered_data.groupby(['IDOperacion', 'year'], as_index=False)
@@ -105,7 +98,7 @@ datamodelo_sumary = datamodelo_sumary[
 # Ajustar modelo logístico
 if not datamodelo_sumary.empty:
     # Parámetros iniciales ajustados según la metodología
-    initial_params = [2.0, 0.1, 1.5]
+    initial_params = [0, 1, 0]
     params, covariance = curve_fit(
         logistic_model, 
         datamodelo_sumary['k'], 
@@ -129,8 +122,8 @@ if not datamodelo_sumary.empty:
         x=datamodelo_sumary_sorted['k'],
         y=datamodelo_sumary_sorted['hd_k'],
         mode='lines',
-        name='Curva Estimada (hd_k)',
-        line=dict(color='red')
+        name='Curva Histórica Estimada (hd_k)',
+        line=dict(color='red', width=3, dash='solid')
     ))
 
     # Añadir los datos observados
@@ -139,7 +132,12 @@ if not datamodelo_sumary.empty:
         y=datamodelo_sumary['d'],
         mode='markers',
         name='Datos Observados (d)',
-        marker=dict(color='blue', size=8, opacity=0.7)
+        marker=dict(color='red', size=8, opacity=0.8),
+        text=datamodelo_sumary.apply(
+            lambda row: f"IDOperacion: {row['IDOperacion']}<br>K (meses): {row['k']}<br>Proporción Desembolsada: {row['d']:.2f}",
+            axis=1
+        ),
+        hoverinfo='text'  # Mostrar el contenido de `text` al pasar el cursor
     ))
 
     # Personalizar diseño
@@ -157,7 +155,9 @@ if not datamodelo_sumary.empty:
         ),
         plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
         paper_bgcolor='rgba(0,0,0,0)',  # Fondo de todo el gráfico transparente
-        font=dict(color='white')  # Color del texto en blanco
+        font=dict(color='white'),  # Color del texto en blanco
+        height=700,  # Altura del gráfico más grande
+        width=1200  # Ancho del gráfico más grande
     )
 
     # Mostrar el gráfico
