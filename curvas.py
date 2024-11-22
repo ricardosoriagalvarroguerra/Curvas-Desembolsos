@@ -13,7 +13,7 @@ def logistic_model(k, b0, b1, b2):
     return 1 / ((1 + np.exp(b0 - b1 * k)) ** b2)
 
 # Load data
-@st.cache
+@st.cache_data
 def load_data(file_path):
     data = pd.read_excel(file_path)
     # Convertir columnas de fecha al tipo datetime
