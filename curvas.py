@@ -31,10 +31,12 @@ st.title("Estimación de la Curva de Desembolsos - FONPLATA")
 file_path = "fonplata_bdd.xlsx"  # Especifica el nombre del archivo local
 data = load_data(file_path)
 
-# Opciones para visualizar curvas por categorías
-categories = st.radio(
+# Barra lateral para la selección de categoría
+st.sidebar.header("Opciones")
+categories = st.sidebar.selectbox(
     "Selecciona una categoría para visualizar las curvas:",
-    ["Sectores", "Tipos de Préstamo", "Países"]
+    ["General", "Sectores", "Tipos de Préstamo", "Países"],
+    index=0
 )
 
 # Agrupar y preparar datos generales
@@ -76,15 +78,6 @@ if not general_summary.empty:
     general_summary['hd_k'] = logistic_model(general_summary['k'], *general_params)
     general_summary_sorted = general_summary.sort_values(by='k')
 
-# Curvas específicas por categoría seleccionada
-group_column = None
-if categories == "Sectores":
-    group_column = "sector_name"
-elif categories == "Tipos de Préstamo":
-    group_column = "tipo_prestamo"
-elif categories == "Países":
-    group_column = "pais"
-
 # Crear gráfico
 fig = go.Figure()
 
@@ -99,6 +92,14 @@ fig.add_trace(go.Scatter(
 ))
 
 # Generar curvas específicas si se selecciona una categoría
+group_column = None
+if categories == "Sectores":
+    group_column = "sector_name"
+elif categories == "Tipos de Préstamo":
+    group_column = "tipo_prestamo"
+elif categories == "Países":
+    group_column = "pais"
+
 if group_column:
     grouped_data = data.groupby(group_column)
 
@@ -126,8 +127,8 @@ if group_column:
             (datamodelo_sumary['d'] <= 1.0) & (datamodelo_sumary['k'] >= 0)
         ]
 
-        # Ajustar modelo logístico
-        if not datamodelo_sumary.empty:
+        # Ajustar modelo logístico solo si hay al menos 3 datos válidos
+        if len(datamodelo_sumary) >= 3:
             initial_params = [2.0, 0.1, 1.5]
             params, _ = curve_fit(
                 logistic_model,
@@ -153,19 +154,9 @@ if group_column:
                 hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
             ))
 
-            # Añadir puntos observados para este grupo
-            fig.add_trace(go.Scatter(
-                x=datamodelo_sumary['k'],
-                y=datamodelo_sumary['d'],
-                mode='markers',
-                name=f"{group_name} - Datos Observados",
-                marker=dict(size=6, opacity=0.8),
-                hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
-            ))
-
 # Personalizar diseño del gráfico
 fig.update_layout(
-    title=f"Curvas de Desembolsos (General y por {categories})",
+    title="Curvas de Desembolsos - FONPLATA",
     xaxis=dict(
         title='Meses desde la Aprobación (k)',
         titlefont=dict(color='white'),
