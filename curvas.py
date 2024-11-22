@@ -70,6 +70,9 @@ categories = st.sidebar.selectbox(
     index=0
 )
 
+# Mostrar u ocultar observaciones individuales
+show_observations = st.sidebar.checkbox("Mostrar observaciones individuales", value=False)
+
 # Agrupar y preparar datos generales
 general_data = data.copy()
 
@@ -111,6 +114,18 @@ if not general_summary.empty:
 
 # Crear gráfico
 fig = go.Figure()
+
+# Mostrar observaciones individuales si está activado
+if show_observations:
+    fig.add_trace(go.Scatter(
+        x=general_summary['k'],
+        y=general_summary['d'],
+        mode='markers',
+        name='observaciones',
+        marker=dict(size=6, color="#888888", opacity=0.7),
+        hovertemplate="IDOperacion: %{text}<br>Meses (K): %{x}<br>Proporción: %{y:.2f}",
+        text=general_summary['IDOperacion']  # IDOperacion en el tooltip
+    ))
 
 # Generar curvas específicas si se selecciona una categoría
 group_column = None
@@ -184,7 +199,7 @@ if group_column:
                 mode='lines',
                 name=group_name.lower(),
                 line=dict(width=2, color=line_color, dash='dot'),
-                hovertemplate=f"{group_column}: {group_name}<br>K (meses): %{{x}}<br>Proporción: %{{y:.2f}}"
+                hovertemplate=f"{group_column}: {group_name}<br>Meses (K): %{x}<br>Proporción: %{y:.2f}"
             ))
 
 # Añadir la curva histórica general después de las específicas para que quede arriba
@@ -194,7 +209,7 @@ fig.add_trace(go.Scatter(
     mode='lines',
     name='general',
     line=dict(color='white', width=4),  # Más gruesa y de color blanco
-    hovertemplate="K (meses): %{x}<br>Proporción General: %{y:.2f}"
+    hovertemplate="Meses (K): %{x}<br>Proporción General: %{y:.2f}"
 ))
 
 # Personalizar diseño del gráfico
@@ -214,16 +229,16 @@ fig.update_layout(
     paper_bgcolor='rgba(0,0,0,0)',  # Fondo de todo el gráfico transparente
     font=dict(color='white'),  # Color del texto en blanco
     height=700,  # Altura del gráfico
-    width=1000,  # Ancho más ajustado para espacio de leyendas
+    width=1000,  # Ancho ajustado
     legend=dict(
         orientation="v",  # Apiladas verticalmente
         yanchor="top",
-        y=1,
-        xanchor="left",
-        x=1.05,  # Separación del gráfico para evitar solapamiento
+        y=1.2,  # Encima del gráfico
+        xanchor="center",
+        x=0.5,  # Centrada horizontalmente
         font=dict(size=12)  # Tamaño de fuente ajustado
     )
 )
 
 # Mostrar el gráfico
-st.plotly_chart(fig, use_container_width=False)
+st.plotly_chart(fig, use_container_width=True)
