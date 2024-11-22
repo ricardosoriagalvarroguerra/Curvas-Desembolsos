@@ -213,16 +213,17 @@ fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
     paper_bgcolor='rgba(0,0,0,0)',  # Fondo de todo el gráfico transparente
     font=dict(color='white'),  # Color del texto en blanco
-    height=700,  # Altura del gráfico más grande
-    width=1200,  # Ancho del gráfico más grande
+    height=700,  # Altura del gráfico
+    width=1000,  # Ancho más ajustado para espacio de leyendas
     legend=dict(
         orientation="v",  # Apiladas verticalmente
         yanchor="top",
         y=1,
-        xanchor="right",
-        x=1.2  # A la derecha del gráfico
+        xanchor="left",
+        x=1.05,  # Separación del gráfico para evitar solapamiento
+        font=dict(size=12)  # Tamaño de fuente ajustado
     )
 )
 
 # Mostrar el gráfico
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=False)
