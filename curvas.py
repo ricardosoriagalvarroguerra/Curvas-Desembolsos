@@ -117,11 +117,24 @@ if not datamodelo_sumary.empty:
     b0_hat, b1_hat, b2_hat = params
     datamodelo_sumary['hd_k'] = logistic_model(datamodelo_sumary['k'], b0_hat, b1_hat, b2_hat)
 
+    # Ordenar los datos por 'k' para graficar correctamente
+    datamodelo_sumary_sorted = datamodelo_sumary.sort_values(by='k')
+
     # Graficar la curva
     st.subheader("Curva de Desembolsos Estimada")
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(datamodelo_sumary['k'], datamodelo_sumary['hd_k'], label='Curva Estimada (hd_k)', color='red')
-    ax.scatter(datamodelo_sumary['k'], datamodelo_sumary['d'], label='Datos Observados (d)', alpha=0.7)
+    ax.plot(
+        datamodelo_sumary_sorted['k'], 
+        datamodelo_sumary_sorted['hd_k'], 
+        label='Curva Estimada (hd_k)', 
+        color='red'
+    )
+    ax.scatter(
+        datamodelo_sumary['k'], 
+        datamodelo_sumary['d'], 
+        label='Datos Observados (d)', 
+        alpha=0.7
+    )
     ax.set_title('Curva Histórica de Desembolsos - FONPLATA')
     ax.set_xlabel('Meses desde la Aprobación (k)')
     ax.set_ylabel('Proporción de Desembolsos Acumulados (hd(k))')
