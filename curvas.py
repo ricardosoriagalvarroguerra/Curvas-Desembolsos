@@ -100,7 +100,7 @@ general_summary = general_summary[
 ]
 
 # Ajustar modelo logístico general
-general_params = [2.0, 0.1, 1.5]
+general_params = [0, 0, 0]
 if not general_summary.empty:
     general_params, _ = curve_fit(
         lambda k, b0, b1, b2: logistic_model(k, b0, b1, b2),  # Mapear `x` a `k`
@@ -153,16 +153,15 @@ fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',  # Fondo transparente
     paper_bgcolor='rgba(0,0,0,0)',  # Fondo de todo el gráfico transparente
     font=dict(color='white'),  # Color del texto en blanco
-    height=800,  # Aumentar la altura total del gráfico
-    margin=dict(t=100, b=50, l=50, r=50),  # Espacios alrededor del gráfico
+    height=800,  # Altura del gráfico
+    margin=dict(t=150, b=50, l=50, r=50),  # Más espacio superior para la leyenda
     legend=dict(
         orientation="h",  # Leyenda horizontal
-        yanchor="top",  # Anclada a la parte superior
-        y=1.3,  # Por encima del gráfico
+        yanchor="top",  # Anclada en la parte superior del margen
+        y=1.15,  # Por encima del área del gráfico
         xanchor="center",  # Centrada horizontalmente
         x=0.5,  # En el centro
-        bgcolor="rgba(0,0,0,0)",  # Fondo completamente transparente
-        bordercolor="rgba(0,0,0,0)",  # Sin bordes
+        bgcolor="rgba(0,0,0,0)",  # Fondo transparente
     )
 )
 
